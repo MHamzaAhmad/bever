@@ -9,7 +9,8 @@
   "dependencies": {
     "@types/node": "^18.14.2",
     "boxen": "^7.0.1",
-    "chalk": "^5.2.0",
+    "cli-color": "^2.0.3",
+    "prompt-confirm": "^2.0.4",
     "shelljs": "^0.8.5",
     "yargs": "^17.7.1"
   }

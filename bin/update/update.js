@@ -1,16 +1,21 @@
 #! /usr/bin/env node
 const fs = require("fs");
-const { ANDROID_PATH, IOS_PATH } = require("../constants");
-const { incrementSelector } = require("./helpers");
+const { androidPath, iosPath } = require("../constants");
+const { checkIfPubspecVersions, updatePubspecVersions } = require("./flutterVersions");
+const { incrementSelector, logVersions } = require("./helpers");
+
 const update = (options) => {
-  androidVersionUpdater(options);
-  iosVersionUpdater(options);
+  const pubspecCheck = checkIfPubspecVersions();
+  if (pubspecCheck) {
+    updatePubspecVersions(options);
+  } else {
+    androidVersionUpdater(options);
+    iosVersionUpdater(options);
+  }
 };
 
 const androidVersionUpdater = async (options) => {
-  const pwd = process.cwd();
-  const androidPath = `${pwd}/${ANDROID_PATH}`;
-  await fs.readFile(androidPath, "utf8", async (err, data) => {
+  fs.readFile(androidPath(), "utf8", async (err, data) => {
     if (err) {
       throw err;
     }
@@ -27,18 +32,17 @@ const androidVersionUpdater = async (options) => {
         /versionName\s+"\d+\.\d+\.\d+"/,
         `versionName "${updatedVersion.versionName}"`
       );
-    await fs.writeFile(androidPath, updatedData, "utf8", (err) => {
+    fs.writeFile(androidPath(), updatedData, "utf8", (err) => {
       if (err) {
         throw err;
       }
     });
+    logVersions(oldVersion, updatedVersion, "Android");
   });
 };
 
 const iosVersionUpdater = async (options) => {
-  const pwd = process.cwd();
-  const iosPath = `${pwd}/${IOS_PATH}`;
-  await fs.readFile(iosPath, "utf8", async (err, data) => {
+  fs.readFile(iosPath(), "utf8", async (err, data) => {
     if (err) {
       throw err;
     }
@@ -60,11 +64,12 @@ const iosVersionUpdater = async (options) => {
         /MARKETING_VERSION = \d+\.\d+\.\d+;/g,
         `MARKETING_VERSION = ${updatedVersion.versionName};`
       );
-    await fs.writeFile(iosPath, updatedData, "utf8", (err) => {
+    fs.writeFile(iosPath(), updatedData, "utf8", (err) => {
       if (err) {
         throw err;
       }
     });
+    logVersions(oldVersion, updatedVersion, "iOS");
   });
 };
 

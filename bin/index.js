@@ -4,6 +4,7 @@ const yargs = require("yargs");
 const clear = require("./clear/clear.js");
 const commit = require("./commit/commit.js");
 const push = require("./deploy/push.js");
+const handleExceptions = require("./exception_handler.js");
 const update = require("./update/update.js");
 
 const usage = `Usage: bever <command> [options]`;
@@ -48,8 +49,8 @@ yargs
           alias: "no-commit",
           describe: "Do not commit and push the changes",
         })
-        .option("p", {
-          alias: "push",
+        .option("np", {
+          alias: "no-push",
           describe: "Push the changes to remote also",
         });
     }
@@ -64,7 +65,10 @@ yargs
   .version(false)
   .help(true).argv;
 
+handleExceptions();
+
 const argv = yargs(process.argv.slice(2)).argv;
+const argvLength = argv._.length;
 
 const isUpdate = argv._[0] === "update";
 const isCommit = argv._[0] === "commit";
@@ -76,7 +80,7 @@ const onlyBuild =
 const onlyVersion =
   ((argv.v || argv.version) && !(argv.b || argv.build)) || false;
 const noCommit = argv.nc || argv.noCommit || false;
-const shouldPush = argv.p || argv.push || false;
+const shouldPush = argv.np || argv.noPush || false;
 
 const udpateBuildNumbers = () => {
   if (onlyBuild) {
@@ -87,6 +91,11 @@ const udpateBuildNumbers = () => {
     update({ build: true, version: true });
   }
 };
+
+if ((!isUpdate && !isCommit && !isDeploy && !isClear) || argvLength < 1) {
+  yargs.usage();
+  process.exit(0);
+}
 
 if (isClear) {
   clear();
@@ -101,7 +110,7 @@ if (isUpdate) {
   udpateBuildNumbers();
   if (!noCommit) {
     commit({ message: argv.m || argv.message });
-    if (shouldPush) {
+    if (!shouldPush) {
       push();
     }
   }

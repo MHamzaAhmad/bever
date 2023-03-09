@@ -1,3 +1,4 @@
+const cli = require("cli-color");
 const incrementBuildAndVersion = (version) => {
   const { versionCode, versionName } = version;
   const [major, minor, patch] = versionName.split(".");
@@ -37,5 +38,12 @@ module.exports = {
     } else {
       return incrementBuildAndVersion(oldVersion);
     }
+  },
+  logVersions: (oldVersion, newVersion, platform) => {
+    console.log(
+      cli.yellow(
+        `${platform} versions: {old: ${oldVersion.versionName} (${oldVersion.versionCode}), new: ${newVersion.versionName} (${newVersion.versionCode})}`
+      )
+    );
   },
 };
