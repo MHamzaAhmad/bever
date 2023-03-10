@@ -44,7 +44,7 @@ bever --help
 
 ## Contribution
 
-Any PRs and feature suggestions are appreciated.
+Any PRs and feature requests are appreciated.
 Report any issues on the github repo
 
 ## Creator
