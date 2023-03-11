@@ -13,5 +13,13 @@
     "prompt-confirm": "^2.0.4",
     "shelljs": "^0.8.5",
     "yargs": "^17.7.1"
-  }
+  },
+  "keywords": [
+    "update versions",
+    "android",
+    "ios",
+    "react-native",
+    "flutter",
+    "build numbers"
+  ]
 }
