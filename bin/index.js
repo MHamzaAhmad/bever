@@ -80,7 +80,7 @@ const onlyBuild =
 const onlyVersion =
   ((argv.v || argv.version) && !(argv.b || argv.build)) || false;
 const noCommit = argv.nc || argv.noCommit || false;
-const shouldPush = argv.np || argv.noPush || false;
+const noPush = argv.np || argv.noPush || false;
 
 const udpateBuildNumbers = () => {
   if (onlyBuild) {
@@ -110,7 +110,7 @@ if (isUpdate) {
   udpateBuildNumbers();
   if (!noCommit) {
     commit({ message: argv.m || argv.message });
-    if (!shouldPush) {
+    if (!noPush) {
       push();
     }
   }

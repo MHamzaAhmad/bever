@@ -8,6 +8,6 @@ const msgForBranch = () => {
 
 module.exports = {
   msgGenerator: (options) => {
-    const msg = options.message || msgForBranch();
+    return options.message || msgForBranch();
   },
 };
