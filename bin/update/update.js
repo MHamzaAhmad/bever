@@ -1,15 +1,15 @@
 #! /usr/bin/env node
 const fs = require("fs");
-const { androidPath, iosPath } = require("../constants");
+const { getAndroidPath, getIosPath } = require("../paths");
 const {
   checkIfPubspecVersions,
   updatePubspecVersions,
 } = require("./flutterVersions");
 const { incrementSelector, logVersions } = require("./helpers");
 
+//Select the version updater based on the project type
 const update = (options) => {
   const pubspecCheck = checkIfPubspecVersions();
-  console.log(pubspecCheck);
   if (pubspecCheck) {
     updatePubspecVersions(options);
   } else {
@@ -18,10 +18,12 @@ const update = (options) => {
   }
 };
 
+//Update android versions for cross-platform projects
 const androidVersionUpdater = (options) => {
-  const data = fs.readFileSync(androidPath(), "utf8");
+  if (getAndroidPath() === undefined) return;
+  const data = fs.readFileSync(getAndroidPath(), "utf8");
   const versionCode = data.match(/versionCode\s+(\d+)/)[1];
-  const versionName = data.match(/versionName\s+"(\d+\.\d+\.\d+)"/)[1];
+  const versionName = data.match(/versionName\s+"(\d+\.\d+(\.\d+)?)"/)[1];
   const oldVersion = {
     versionCode: parseInt(versionCode, 10),
     versionName,
@@ -30,34 +32,34 @@ const androidVersionUpdater = (options) => {
   const updatedData = data
     .replace(/versionCode\s+\d+/, `versionCode ${updatedVersion.versionCode}`)
     .replace(
-      /versionName\s+"\d+\.\d+\.\d+"/,
+      /versionName\s+"\d+\.\d+(\.\d+)?"/,
       `versionName "${updatedVersion.versionName}"`
     );
-  fs.writeFileSync(androidPath(), updatedData, "utf8");
+  fs.writeFileSync(getAndroidPath(), updatedData, "utf8");
   logVersions(oldVersion, updatedVersion, "Android");
 };
 
+//Update iOS versions for cross-platform projects
 const iosVersionUpdater = (options) => {
-  const data = fs.readFileSync(iosPath(), "utf8");
+  if (getIosPath() === undefined) return;
+  const data = fs.readFileSync(getIosPath(), "utf8");
   const versionCode = data.match(/CURRENT_PROJECT_VERSION = (\d+);/)[1];
-  const versionName = data.match(/MARKETING_VERSION = (\d+\.\d+\.\d+);/)[1];
+  const versionName = data.match(/MARKETING_VERSION = (\d+\.\d+(\.\d+)?);/);
   const oldVersion = {
     versionCode: parseInt(versionCode, 10),
-    versionName,
+    versionName: versionName != null ? versionName[1] : "1.0.0",
   };
-  const updatedVersion = incrementSelector(oldVersion, options);
+  const updatedVersion = incrementSelector(oldVersion, options, true);
   const updatedData = data
     .replace(
       /CURRENT_PROJECT_VERSION = \d+;/g,
-      `CURRENT_PROJECT_VERSION = ${
-        options.build && options.version ? 1 : updatedVersion.versionCode
-      };`
+      `CURRENT_PROJECT_VERSION = ${updatedVersion.versionCode};`
     )
     .replace(
-      /MARKETING_VERSION = \d+\.\d+\.\d+;/g,
+      /MARKETING_VERSION = \d+\.\d+(\.\d+)?;/g,
       `MARKETING_VERSION = ${updatedVersion.versionName};`
     );
-  fs.writeFileSync(iosPath(), updatedData, "utf8");
+  fs.writeFileSync(getIosPath(), updatedData, "utf8");
   logVersions(oldVersion, updatedVersion, "iOS");
 };
 

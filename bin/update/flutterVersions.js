@@ -1,21 +1,25 @@
 const fs = require("fs");
 const cli = require("cli-color");
-const { androidPath } = require("../constants");
+const { getAndroidPath } = require("../paths");
 const { incrementSelector, logVersions } = require("./helpers");
 
+//To check if the versions are being updated from pubspec.yaml
 const checkIfPubspecVersions = () => {
-  const data = fs.readFileSync(androidPath(), "utf8");
-  const versionCodeCheck = data.match(/versionCode\s+flutterVersionCode.*/);
-  const versionNameCheck = data.match(/versionName\s+flutterVersionName.*/);
-  if (versionCodeCheck || versionNameCheck) {
-    if (fs.existsSync("pubspec.yaml")) {
-      return true;
-    } else {
-      return false;
+  if (fs.existsSync(getAndroidPath())) {
+    const data = fs.readFileSync(getAndroidPath(), "utf8");
+    const versionCodeCheck = data.match(/versionCode\s+flutterVersionCode.*/);
+    const versionNameCheck = data.match(/versionName\s+flutterVersionName.*/);
+    if (versionCodeCheck || versionNameCheck) {
+      if (fs.existsSync("pubspec.yaml")) {
+        return true;
+      } else {
+        return false;
+      }
     }
   }
 };
 
+// Update versions from pubspec.yaml
 const updatePubspecVersions = (options) => {
   console.log("Found versions being updated from pubspec.yaml");
   console.log(cli.green("Updating versions from pubspec.yaml..."));

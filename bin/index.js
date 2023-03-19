@@ -4,7 +4,7 @@ const yargs = require("yargs");
 const clear = require("./clear/clear.js");
 const commit = require("./commit/commit.js");
 const push = require("./deploy/push.js");
-const handleExceptions = require("./exception_handler.js");
+const { handleExceptions } = require("./exception_handler.js");
 const update = require("./update/update.js");
 
 const usage = `Usage: bever <command> [options]`;
@@ -83,7 +83,7 @@ const noCommit = argv.nc || argv.noCommit || false;
 const noPush = argv.np || argv.noPush || false;
 
 const udpateBuildNumbers = () => {
-  if (onlyBuild) {
+  if (onlyBuild || isDeploy) {
     update({ build: true, version: false });
   } else if (onlyVersion) {
     update({ build: false, version: true });

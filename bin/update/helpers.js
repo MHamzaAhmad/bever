@@ -1,10 +1,10 @@
 const cli = require("cli-color");
-const incrementBuildAndVersion = (version) => {
-  const { versionCode, versionName } = version;
+const incrementBuildAndVersion = (oldVersion, both) => {
+  const { versionCode, versionName } = oldVersion;
   const [major, minor, patch] = versionName.split(".");
   const newVersion = {
-    versionCode: versionCode + 1,
-    versionName: `${major}.${minor}.${parseInt(patch, 10) + 1}`,
+    versionCode: both ? 1 : versionCode + 1,
+    versionName: `${major}.${minor}.${parseInt(patch || 0, 10) + 1}`,
   };
   return newVersion;
 };
@@ -23,20 +23,20 @@ const incrementVersionName = (version) => {
   const [major, minor, patch] = versionName.split(".");
   const newVersion = {
     versionCode,
-    versionName: `${major}.${minor}.${parseInt(patch, 10) + 1}`,
+    versionName: `${major}.${minor}.${parseInt(patch || 0, 10) + 1}`,
   };
   return newVersion;
 };
 module.exports = {
-  incrementSelector: (oldVersion, { build, version }) => {
+  incrementSelector: (oldVersion, { build, version }, both) => {
     if (build && version) {
-      return incrementBuildAndVersion(oldVersion);
+      return incrementBuildAndVersion(oldVersion, both);
     } else if (build) {
       return incrementVersionCode(oldVersion);
     } else if (version) {
       return incrementVersionName(oldVersion);
     } else {
-      return incrementBuildAndVersion(oldVersion);
+      return incrementBuildAndVersion(oldVersion, both);
     }
   },
   logVersions: (oldVersion, newVersion, platform) => {

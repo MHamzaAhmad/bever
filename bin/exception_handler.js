@@ -1,6 +1,12 @@
 const shell = require("shelljs");
 const fs = require("fs");
-const { androidPath, iosPath } = require("./constants");
+const {
+  androidPath,
+  iosPath,
+  androidNativePath,
+  iosNativePath,
+  iosReactNativePath,
+} = require("./paths");
 const cli = require("cli-color");
 
 const showError = (check, msg) => {
@@ -20,12 +26,29 @@ const checkGitRepo = () => {
   }
 };
 
+const checkIfMobileProject = () => {
+  if (fs.existsSync(androidPath()) && fs.existsSync(iosPath())) {
+    return true;
+  } else if (
+    fs.existsSync(androidNativePath()) ||
+    fs.existsSync(iosNativePath())
+  ) {
+    return true;
+  } else if (fs.existsSync(iosReactNativePath())) {
+    return true;
+  } else {
+    return false;
+  }
+};
+
 const handleExceptions = () => {
   showError(shell.which("git"), "Git is not installed");
   showError(shell.which("node"), "Node is not installed");
   checkGitRepo();
-  showError(fs.existsSync(androidPath()), "Android project not found");
-  showError(fs.existsSync(iosPath()), "iOS project not found");
+  showError(
+    checkIfMobileProject(),
+    "Couldn't find any versions to update, please check if you are in a right project"
+  );
 };
 
-module.exports = handleExceptions;
+module.exports = { handleExceptions, checkIfMobileProject };

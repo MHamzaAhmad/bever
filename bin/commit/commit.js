@@ -1,6 +1,7 @@
 const shell = require("shelljs");
 const { msgGenerator } = require("./helpers");
 
+//Commits the changes
 const commit = (options) => {
   const pwd = process.cwd();
   shell.cd(pwd);
